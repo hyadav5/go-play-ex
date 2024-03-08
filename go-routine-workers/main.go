@@ -2,6 +2,22 @@ package main
 
 import "time"
 
+func doKeyedWork(wp *KeyedWorkerPool, c chan string, key string, waitInSec int) {
+	wp.DoWork(key, func() {
+		print(key, " is doing some work. ID: ", wp.GetWorkerID(key), "\n")
+		time.Sleep(time.Duration(waitInSec) * time.Second)
+		c <- key
+	})
+}
+
+func doKeyedWorkCustom(wp *KeyedWorkerPool, c chan string, key string, myWork func()) {
+	wp.DoWork(key, func() {
+		print(key, " is doing some work. ID: ", wp.GetWorkerID(key), "\n")
+		myWork()
+		c <- key
+	})
+}
+
 func main() {
 	//wp := MakeWorkerPool(3, 1)
 	//start := time.Now()
@@ -24,27 +40,29 @@ func main() {
 
 	wp := MakeKeyedWorkerPool(3, 100)
 	c := make(chan string, 100)
-	wp.DoWork("service1", func() {
-		print("service1 is doing some work. ID: ", wp.GetWorkerID("service1"), "\n")
-		time.Sleep(5 * time.Second)
-		c <- "service1"
+
+	//doKeyedWork(wp, c, "service1", 5)
+	//doKeyedWork(wp, c, "service2", 10)
+	//doKeyedWork(wp, c, "service3", 15)
+
+	doKeyedWorkCustom(wp, c, "service1", func() {
+		print("service1 doing its custom work \n")
+		time.Sleep(time.Duration(5) * time.Second)
 	})
-	wp.DoWork("service3", func() {
-		print("service3 is doing some work. ID: ", wp.GetWorkerID("service3"), "\n")
-		time.Sleep(15 * time.Second)
-		c <- "service3"
+	doKeyedWorkCustom(wp, c, "service2", func() {
+		print("service2 doing its custom work \n")
+		time.Sleep(time.Duration(10) * time.Second)
 	})
-	wp.DoWork("service2", func() {
-		print("service2 is doing some work. ID: ", wp.GetWorkerID("service2"), "\n")
-		time.Sleep(10 * time.Second)
-		c <- "service2"
+	doKeyedWorkCustom(wp, c, "service3", func() {
+		print("service3 doing its custom work \n")
+		time.Sleep(time.Duration(15) * time.Second)
 	})
 
-	workerChannelLength := wp.WorkerChannelLength(wp.GetWorkerID("service3"))
-	print("service3 workerChannelLength = ", workerChannelLength, "\n")
-
-	length := wp.Length()
-	print("length = ", length, "\n")
+	//workerChannelLength := wp.WorkerChannelLength(wp.GetWorkerID("service3"))
+	//print("service3 workerChannelLength = ", workerChannelLength, "\n")
+	//
+	//length := wp.Length()
+	//print("length = ", length, "\n")
 
 	for i := 0; i < 3; i++ {
 		x := <-c
