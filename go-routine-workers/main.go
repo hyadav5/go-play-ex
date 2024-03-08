@@ -22,7 +22,7 @@ func main() {
 	//	print("hey their")
 	//}
 
-	wp := MakeKeyedWorkerPool(3, 1)
+	wp := MakeKeyedWorkerPool(3, 100)
 	c := make(chan string, 100)
 	wp.DoWork("service1", func() {
 		print("service1 is doing some work. ID: ", wp.GetWorkerID("service1"), "\n")
@@ -39,6 +39,12 @@ func main() {
 		time.Sleep(10 * time.Second)
 		c <- "service2"
 	})
+
+	workerChannelLength := wp.WorkerChannelLength(wp.GetWorkerID("service3"))
+	print("service3 workerChannelLength = ", workerChannelLength, "\n")
+
+	length := wp.Length()
+	print("length = ", length, "\n")
 
 	for i := 0; i < 3; i++ {
 		x := <-c
