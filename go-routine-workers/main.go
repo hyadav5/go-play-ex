@@ -1,6 +1,9 @@
 package main
 
-import "time"
+import (
+	"context"
+	"time"
+)
 
 func doKeyedWork(wp *KeyedWorkerPool, c chan string, key string, waitInSec int) {
 	wp.DoWork(key, func() {
@@ -45,6 +48,9 @@ func main() {
 	//doKeyedWork(wp, c, "service2", 10)
 	//doKeyedWork(wp, c, "service3", 15)
 
+	ctx := context.Background()
+	ctx.Deadline()
+
 	doKeyedWorkCustom(wp, c, "service1", func() {
 		print("service1 doing its custom work \n")
 		time.Sleep(time.Duration(5) * time.Second)
@@ -58,11 +64,24 @@ func main() {
 		time.Sleep(time.Duration(15) * time.Second)
 	})
 
-	//workerChannelLength := wp.WorkerChannelLength(wp.GetWorkerID("service3"))
-	//print("service3 workerChannelLength = ", workerChannelLength, "\n")
-	//
-	//length := wp.Length()
-	//print("length = ", length, "\n")
+	doKeyedWorkCustom(wp, c, "service4", func() {
+		print("service4 doing its custom work \n")
+		time.Sleep(time.Duration(15) * time.Second)
+	})
+
+	doKeyedWorkCustom(wp, c, "service5", func() {
+		print("service5 doing its custom work \n")
+		time.Sleep(time.Duration(15) * time.Second)
+	})
+	
+	workerChannelLength := wp.WorkerChannelLength(wp.GetWorkerID("service4"))
+	print("service4 workerChannelLength = ", workerChannelLength, "\n")
+
+	workerChannelLength = wp.WorkerChannelLength(wp.GetWorkerID("service5"))
+	print("service5 workerChannelLength = ", workerChannelLength, "\n")
+
+	length := wp.Length()
+	print("length = ", length, "\n")
 
 	for i := 0; i < 3; i++ {
 		x := <-c
