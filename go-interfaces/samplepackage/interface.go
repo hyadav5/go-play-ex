@@ -1,25 +1,55 @@
 package samplepackage
 
-type Child1Interface interface {
-	Child1Method1()
+type systemHealth struct {
+	myName string
 }
 
-type Child2Interface interface {
-	Child2Method1()
+var sh systemHealth
+
+type SystemHealthService interface {
+	//AviServiceViewer
+	GetMyName() string
+
+	// Other Viewers interfaces
 }
 
-type MasterInterface interface {
-	Child1Interface
-	Child2Interface
+type systemHealthClientImpl struct {
+	client *systemHealth
 }
 
-type Master struct {
+var SystemHealthClient systemHealthClientImpl
+
+func Init() {
+	sh.myName = "hemant yadav"
+	SystemHealthClient.client = &sh
 }
 
-func (m *Master) Child1Method1() {
-	println("Child1Method1()")
+//var SystemHealthClient SystemHealthClientImpl
+
+func (shc *systemHealthClientImpl) GetMyName() string {
+	return shc.client.myName
 }
 
-func (m *Master) Child2Method1() {
-	println("Child2Method1()")
-}
+//type Child1Interface interface {
+//	Child1Method1()
+//}
+//
+//type Child2Interface interface {
+//	Child2Method1()
+//}
+//
+//type MasterInterface interface {
+//	Child1Interface
+//	Child2Interface
+//}
+//
+//type Master struct {
+//}
+//
+//func (m *Master) Child1Method1() {
+//	println("Child1Method1()")
+//}
+//
+//func (m *Master) Child2Method1() {
+//	println("Child2Method1()")
+//}
