@@ -1,55 +1,118 @@
 package samplepackage
 
+import (
+	"context"
+	"github.com/coreos/go-systemd/dbus"
+)
+
+type healthRecordType string
+
+const (
+	// SecureChannelStatus - record to define the secure channel status across the controller nodes
+	secureChannelStatus healthRecordType = "SecureChannelStatus"
+)
+
 type systemHealth struct {
-	myName string
+	localNodeName string
+	dBusListener  dataCollector
 }
 
-var sh systemHealth
-
-type SystemHealthService interface {
-	//AviServiceViewer
-	GetMyName() string
-
-	// Other Viewers interfaces
+// Interface which expects the implementor to implement atleast below 3 functions.
+type dataCollector interface {
+	init(sh *systemHealth) error
+	run() error
+	persistHealthRecord(recordType healthRecordType, handlerFuncForRecordType func(ctx context.Context)) error
 }
 
-type systemHealthClientImpl struct {
-	client *systemHealth
+// dBusListener implements the dataCollector interface.
+// It listens to the system-d bus event for the AVI service events.
+type dBusListener struct {
+	sysHealth  *systemHealth
+	dBusClient *dbus.Conn
 }
 
-var SystemHealthClient systemHealthClientImpl
-
-func Init() {
-	sh.myName = "hemant yadav"
-	SystemHealthClient.client = &sh
+func (dbl *dBusListener) init(sh *systemHealth) error {
+	println("init()")
+	return nil
 }
 
-//var SystemHealthClient SystemHealthClientImpl
-
-func (shc *systemHealthClientImpl) GetMyName() string {
-	return shc.client.myName
+func (dbl *dBusListener) run() error {
+	println("run()")
+	return nil
 }
 
-//type Child1Interface interface {
-//	Child1Method1()
+func (dbl *dBusListener) persistHealthRecord(recordType healthRecordType, handlerFuncForRecordType func(ctx context.Context)) error {
+	println("persistHealthRecord()")
+	return nil
+}
+
+// dBusListener implements the dataCollector interface.
+// It listens to the system-d bus event for the AVI service events.
+type newsListener struct {
+	sysHealth  *systemHealth
+	dBusClient *dbus.Conn
+}
+
+func (nl *newsListener) init(sh *systemHealth) error {
+	println("init()")
+	return nil
+}
+
+func (nl *newsListener) run() error {
+	println("run()")
+	return nil
+}
+
+func (nl *newsListener) persistHealthRecord(recordType healthRecordType, handlerFuncForRecordType func(ctx context.Context)) error {
+	println("persistHealthRecord()")
+	return nil
+}
+
+func NewImplementors() {
+	sh := systemHealth{}
+
+	var dBusListenerObj dataCollector = &dBusListener{}
+	dBusListenerObj.init(&sh)
+	dBusListenerObj.run()
+	dBusListenerObj.persistHealthRecord("", func(ctx context.Context) {})
+
+	var newsListenerObj dataCollector = &newsListener{}
+	newsListenerObj.init(&sh)
+	newsListenerObj.run()
+	newsListenerObj.persistHealthRecord("", func(ctx context.Context) {})
+}
+
+// ============ start of CLIENT APIS ================ //
+type systemHealthClientIf interface {
+	GetServices()
+	GetService()
+}
+
+type systemHealthClient struct {
+	client *string
+}
+
+func (impl *systemHealthClient) GetServices() {
+	println("called GetServices()")
+}
+func (impl *systemHealthClient) GetService() {
+	println("called GetService()")
+}
+
+var SystemHealthClient systemHealthClientIf = &systemHealthClient{}
+
+/*
+If systemHealthClient have few memory maps or pointers which need to be freed.
+Some data connection which needs to closed.
+Then we should provide the New() method and return the object.
+that Object can be used to close() the things when caller is done.
+
+Here in this particular example.
+*/
+
+//func NewSystemHealthServiceClient() SystemHealthClientIf {
+//	var systemHealthClientImplObj SystemHealthClientIf = &systemHealthClientImpl{}
+//	return systemHealthClientImplObj
 //}
-//
-//type Child2Interface interface {
-//	Child2Method1()
-//}
-//
-//type MasterInterface interface {
-//	Child1Interface
-//	Child2Interface
-//}
-//
-//type Master struct {
-//}
-//
-//func (m *Master) Child1Method1() {
-//	println("Child1Method1()")
-//}
-//
-//func (m *Master) Child2Method1() {
-//	println("Child2Method1()")
-//}
+
+// ============ end of CLIENT APIS ================ //

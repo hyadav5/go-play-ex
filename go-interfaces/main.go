@@ -1,8 +1,15 @@
 package main
 
-import "context"
+import (
+	"context"
+	"study/go-play-ex/go-interfaces/samplepackage"
+)
 
 type HealthRecordType string
+
+type sampleStruct struct {
+	name string
+}
 
 const (
 	// PersistentVolumeClaimResizing - a user trigger resize of pvc has been started
@@ -68,4 +75,11 @@ func main() {
 	//checkType(PersistentVolumeClaimResizing)
 	//name := HealthRecordType("hemant")
 	//checkType(name)
+
+	//caller := samplepackage.NewSystemHealthServiceClient()
+	//caller.GetService()
+	//caller.GetServices()
+
+	samplepackage.SystemHealthClient.GetService()
+	samplepackage.SystemHealthClient.GetServices()
 }
